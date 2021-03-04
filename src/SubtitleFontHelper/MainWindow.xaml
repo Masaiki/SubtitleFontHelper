@@ -7,7 +7,10 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="249,178,0,0" VerticalAlignment="Top" Width="196" Height="64" Click="Button_Click"/>
+        <Button x:Name="btnScan" Content="Scan" HorizontalAlignment="Left" Margin="315,247,0,0" VerticalAlignment="Top" Width="196" Height="71" Click="Button_Click"/>
+        <Label x:Name="InfoL" Content="None" HorizontalAlignment="Left" Height="27" Margin="24,35,0,0" VerticalAlignment="Top" Width="746"/>
+        <Button x:Name="btnCheck" Content="Button" HorizontalAlignment="Left" Margin="435,149,0,0" VerticalAlignment="Top" Width="173" Height="50" Click="btnCheck_Click"/>
+        <ProgressBar x:Name="pbarScan" HorizontalAlignment="Left" Height="41" Margin="54,247,0,0" VerticalAlignment="Top" Width="226"/>
 
     </Grid>
 </Window>
