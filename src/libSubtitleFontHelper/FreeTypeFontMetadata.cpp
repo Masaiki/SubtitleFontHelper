@@ -223,7 +223,7 @@ namespace libSubtitleFontHelper {
 		return ret;
 	}
 
-
+#pragma managed(push,off)
 
 	FreeTypeFontFaceMetadataNative::FreeTypeFontFaceMetadataNative()
 	{
@@ -387,4 +387,6 @@ namespace libSubtitleFontHelper {
 		auto new_end = std::unique(vec.begin(), vec.end());
 		vec.erase(new_end, vec.end());
 	}
+
+#pragma managed(pop)
 }

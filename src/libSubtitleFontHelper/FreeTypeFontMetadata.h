@@ -128,6 +128,8 @@ namespace libSubtitleFontHelper {
 		FreeTypeFontFaceMetadataNative* _face_parser;
 	};
 
+#pragma managed(push,off)
+
 	class FreeTypeFontFaceMetadataNative {
 	public:
 		FreeTypeFontFaceMetadataNative();
@@ -157,5 +159,7 @@ namespace libSubtitleFontHelper {
 
 		std::vector<wchar_t> _conv_buf;
 	};
+
+#pragma managed(pop)
 
 }
