@@ -4,13 +4,66 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SubtitleFontHelper"
+        xmlns:cmds="clr-namespace:SubtitleFontHelper.Commands"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <Button x:Name="btnScan" Content="Scan" HorizontalAlignment="Left" Margin="315,247,0,0" VerticalAlignment="Top" Width="196" Height="71" Click="Button_Click"/>
-        <Label x:Name="InfoL" Content="None" HorizontalAlignment="Left" Height="27" Margin="24,35,0,0" VerticalAlignment="Top" Width="746"/>
-        <Button x:Name="btnCheck" Content="Button" HorizontalAlignment="Left" Margin="435,149,0,0" VerticalAlignment="Top" Width="173" Height="50" Click="btnCheck_Click"/>
-        <ProgressBar x:Name="pbarScan" HorizontalAlignment="Left" Height="41" Margin="54,247,0,0" VerticalAlignment="Top" Width="226"/>
+        Name="WMainWindow"
+        Title="{DynamicResource MainWindow.Title}"
+        Height="450" Width="600"
+        MinHeight="450" MinWidth="600"
+        Closing="MainWindow_Closing"
+        WindowStartupLocation="CenterScreen">
+    <Window.CommandBindings>
+        <CommandBinding Command="cmds:Commands.Exit" Executed="OnExit"/>
+    </Window.CommandBindings>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="{DynamicResource MainWindow.Menu.File}">
+                <MenuItem Header="{DynamicResource MainWindow.Menu.File.Exit}" Command="cmds:Commands.Exit"/>
+            </MenuItem>
+        </Menu>
+        <TabControl Margin="5,0,5,3" TabStripPlacement="Left"
+                    Template="{StaticResource TabControlTemplate}">
+            <TabItem Header="{DynamicResource MainWindow.TabHeader.LogOutput}"
+                     Style="{StaticResource TabItemStyle}">
+                <DockPanel LastChildFill="True">
+                    <StackPanel DockPanel.Dock="Top" Margin="0,5" Orientation="Horizontal" FlowDirection="RightToLeft">
+                        <StackPanel.Resources>
+                            <Style TargetType="{x:Type Button}">
+                                <Setter Property="Margin" Value="3,0"/>
+                                <Setter Property="FontSize" Value="14"/>
+                                <Setter Property="Padding" Value="5,2"/>
+                            </Style>
+                            <Style TargetType="{x:Type ToggleButton}">
+                                <Setter Property="Margin" Value="3,0"/>
+                                <Setter Property="FontSize" Value="14"/>
+                                <Setter Property="Padding" Value="5,2"/>
+                            </Style>
+                        </StackPanel.Resources>
+                        <Button Name="ClearButton" Content="{DynamicResource MainWindow.LogTab.ClearButton}" Click="ClearButton_Click"/>
+                        <ToggleButton Name="KeepBottomButton" 
+                                      Content="↓" 
+                                      IsChecked="{Binding ElementName=WMainWindow, Path=LogTextBoxKeepBottom}" />
+                    </StackPanel>
+                    <TextBox Name="LogTextBox"  
+                             VerticalScrollBarVisibility="Visible"
+                             TextWrapping="Wrap"
+                             IsReadOnly="True"
+                             FontSize="14"
+                             TextChanged="LogTextBox_TextChanged"
+                             MouseWheel="LogTextBox_MouseWheel"
+                             PreviewMouseDown="LogTextBox_PreviewMouseDown">
 
-    </Grid>
+                    </TextBox>
+                </DockPanel>
+            </TabItem>
+            <TabItem Header="{DynamicResource MainWindow.TabHeader.IndexManagement}"
+                     Style="{StaticResource TabItemStyle}">
+                <StackPanel>
+                    <Button Content="Show Wizard" Name="ShowWiz" Click="ShowWiz_OnClick"></Button>
+                    <Button Content="BuildIndex" Name="BuildIndex" Click="BuildIndex_OnClick"></Button>
+                    <Button Content="Test NamedPipe" Name="TestPipe" Click="TestPipe_OnClick"></Button>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
 </Window>

@@ -1,0 +1,32 @@
+﻿syntax = "proto3";
+
+package SubtitleFontHelper;
+
+message AttachIndication {
+	int32 processId = 1;
+}
+
+message FontQueryRequest {
+	string fullName = 1;
+}
+
+message FontQueryResponse {
+	string fullPath = 1;
+}
+
+enum MessageType {
+	Unknown = 0;
+
+	Indication_Attach = 0x10000;
+
+	Request_FontQuery = 0x20000;
+	Response_FontQuery = 0x20001;
+}
+
+message Message {
+	MessageType type = 1;
+
+	AttachIndication attachIndication = 2;
+	FontQueryRequest fontQueryRequest = 3;
+	FontQueryResponse FontQueryResponse = 4;
+}

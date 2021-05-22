@@ -1,0 +1,89 @@
+﻿<Window x:Class="SubtitleFontHelper.IndexBuilder"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SubtitleFontHelper"
+        mc:Ignorable="d"
+        Title="IndexBuilder" Height="450" Width="800">
+    <DockPanel Margin="5">
+        <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft" Margin="0,6,0,0"
+                    DockPanel.Dock="Bottom">
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="Margin" Value="3,0"/>
+                    <Setter Property="FontSize" Value="14"/>
+                    <Setter Property="Width" Value="80"/>
+                </Style>
+            </StackPanel.Resources>
+            <Button Name="CancelButton" 
+                    Content="{DynamicResource IndexBuilder.Button.Cancel}"
+                    Click="CancelButton_OnClick"/>
+            <Button Name="NextButton" 
+                    Content="{DynamicResource IndexBuilder.Button.Next}"
+                    Click="NextButton_OnClick"/>
+            <Button Name="PrevButton" 
+                    Content="{DynamicResource IndexBuilder.Button.Prev}"
+                    Click="PrevButton_OnClick"/>
+        </StackPanel>
+        <TabControl BorderThickness="0" TabStripPlacement="Left" 
+                    Template="{StaticResource TabControlTemplate}">
+            <TabItem Header="{DynamicResource IndexBuilder.TabHeader.DirectorySelection}"
+                     Style="{StaticResource TabItemStyle}">
+                <DockPanel LastChildFill="True">
+                    <TextBlock Text="{DynamicResource IndexBuilder.Step1.Hint}"
+                               TextWrapping="Wrap"
+                               Margin="10"
+                               FontSize="12"
+                               DockPanel.Dock="Top"/>
+                    <StackPanel Margin="0,10,10,10"
+                                DockPanel.Dock="Right">
+                        <StackPanel.Resources>
+                            <Style TargetType="{x:Type Button}">
+                                <Setter Property="FontSize" Value="14"/>
+                                <Setter Property="Padding" Value="22,6"/>
+                                <Setter Property="Margin" Value="0,5,0,5"/>
+                            </Style>
+                            <Style x:Key="SelectTriggerButton"
+                                   TargetType="{x:Type Button}"
+                                   BasedOn="{StaticResource {x:Type Button}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedIndex, ElementName=DirectoryList}"
+                                                 Value="-1">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Resources>
+                        <Button Name="AddDirectoryButton"
+                                Content="{DynamicResource IndexBuilder.Step1.AddDirectory}"
+                                Click="AddDirectoryButton_OnClick"/>
+                        <Button Name="RemoveDirectoryButton"
+                                Content="{DynamicResource IndexBuilder.Step1.RemoveDirectory}"
+                                Click="RemoveDirectoryButton_OnClick"
+                                Style="{StaticResource SelectTriggerButton}"/>
+                        <Button Name="MoveUpButton"
+                                Click="MoveUpButton_OnClick"
+                                Style="{StaticResource SelectTriggerButton}"
+                                Content="↑"/>
+                        <Button Name="MoveDownButton"
+                                Click="MoveDownButton_OnClick"
+                                Style="{StaticResource SelectTriggerButton}"
+                                Content="↓"/>
+                    </StackPanel>
+                    <ListBox Margin="10"
+                             FontSize="12"
+                             Name="DirectoryList"
+                             SelectionMode="Single">
+                    </ListBox>
+                </DockPanel>
+            </TabItem>
+            <TabItem Header="{DynamicResource IndexBuilder.TabHeader.BuildIndex}" 
+                     IsEnabled="False"
+                     Style="{StaticResource TabItemStyle}">
+
+            </TabItem>
+        </TabControl>
+
+    </DockPanel>
+</Window>

@@ -1,3 +1,10 @@
 [submodule "src/libSubtitleFontHelper/freetype"]
 	path = src/libSubtitleFontHelper/freetype
 	url = https://github.com/ubawurinna/freetype-windows-binaries.git
+[submodule "src/libSubtitleFontHelperHook/Detours"]
+	path = src/libSubtitleFontHelperHook/Detours
+	url = https://github.com/microsoft/Detours.git
+[submodule "src/libSubtitleFontHelperHook/protobuf"]
+	path = src/libSubtitleFontHelperHook/protobuf
+	url = https://github.com/protocolbuffers/protobuf.git
+	branch = 3.15.x

@@ -311,6 +311,10 @@ namespace libSubtitleFontHelper {
 				size_t new_len = raw_name.string_len / 2;
 				std::unique_ptr<char[]> bytes(new char[new_len]);
 				for (size_t i = 0; i < new_len; ++i) {
+					if (raw_name.string[i * 2] != 0) {
+						// not uint16 BE
+						return std::wstring();
+					}
 					bytes[i] = raw_name.string[i * 2 + 1];
 				}
 				UINT codepage = GetCodePageByEncodingId(raw_name.encoding_id);
@@ -333,7 +337,7 @@ namespace libSubtitleFontHelper {
 		if (hr == 0) {
 			DWORD err = GetLastError();
 			if (err == ERROR_INSUFFICIENT_BUFFER) {
-				_conv_buf.resize(_conv_buf.size() * 1.5);
+				_conv_buf.resize(static_cast<size_t>(_conv_buf.size() * 1.5));
 				return DecodeBytes(codepage, bytes, length);
 			}
 			else {

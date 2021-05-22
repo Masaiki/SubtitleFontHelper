@@ -74,21 +74,33 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)..\build\$(Platform)\out\$(ProjectName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\build\$(Platform)\obj\$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)32</TargetName>
+    <IncludePath>$(ProjectDir)protobuf\cmake\x86build\installed\include\;$(ProjectDir)Detours\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)protobuf\cmake\x86build\installed\lib;$(ProjectDir)Detours\lib.X86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)..\build\$(Platform)\out\$(ProjectName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\build\$(Platform)\obj\$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)32</TargetName>
+    <IncludePath>$(ProjectDir)protobuf\cmake\x86build\installed\include\;$(ProjectDir)Detours\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)protobuf\cmake\x86build\installed\lib;$(ProjectDir)Detours\lib.X86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)..\build\$(Platform)\out\$(ProjectName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\build\$(Platform)\obj\$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)64</TargetName>
+    <IncludePath>$(ProjectDir)protobuf\cmake\x64build\installed\include\;$(ProjectDir)Detours\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)protobuf\cmake\x64build\installed\lib;$(ProjectDir)Detours\lib.X64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)..\build\$(Platform)\out\$(ProjectName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\build\$(Platform)\obj\$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)64</TargetName>
+    <IncludePath>$(ProjectDir)protobuf\cmake\x64build\installed\include\;$(ProjectDir)Detours\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)protobuf\cmake\x64build\installed\lib;$(ProjectDir)Detours\lib.X64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -96,14 +108,16 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;LIBSUBTITLEFONTHELPERHOOK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>detours.lib;libprotobufd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -114,8 +128,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;LIBSUBTITLEFONTHELPERHOOK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
@@ -124,6 +139,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>detours.lib;libprotobuf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -132,14 +148,16 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;LIBSUBTITLEFONTHELPERHOOK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>detours.lib;libprotobufd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -150,8 +168,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;LIBSUBTITLEFONTHELPERHOOK_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
       <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
     </ClCompile>
     <Link>
@@ -160,22 +179,59 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>detours.lib;libprotobuf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
-    <ClInclude Include="pch.h" />
+    <ClInclude Include="hook.h" />
+    <ClInclude Include="init.h" />
+    <ClInclude Include="common.h" />
+    <ClInclude Include="message.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="pch.cpp">
+    <ClCompile Include="dwrite_hook.cpp" />
+    <ClCompile Include="gdi_hook.cpp" />
+    <ClCompile Include="init.cpp" />
+    <ClCompile Include="common.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="message.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\subtitlefonthelper\proto\message.proto">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(protoc_windows86)  --proto_path=$(protoc_tools)google\protobuf\ --proto_path=%(RelativeDir) --csharp_out=$(SolutionDir)SubtitleFontHelper\Proto --cpp_out=$(SolutionDir)libSubtitleFontHelperHook\proto %(Identity)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generate protobuf files</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(protoc_windows86)  --proto_path=$(protoc_tools)google\protobuf\ --proto_path=%(RelativeDir) --csharp_out=$(SolutionDir)SubtitleFontHelper\Proto --cpp_out=$(SolutionDir)libSubtitleFontHelperHook\proto %(Identity)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generate protobuf files</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(protoc_windows86)  --proto_path=$(protoc_tools)google\protobuf\ --proto_path=%(RelativeDir) --csharp_out=$(SolutionDir)SubtitleFontHelper\Proto --cpp_out=$(SolutionDir)libSubtitleFontHelperHook\proto %(Identity)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generate protobuf files</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(protoc_windows86)  --proto_path=$(protoc_tools)google\protobuf\ --proto_path=%(RelativeDir) --csharp_out=$(SolutionDir)SubtitleFontHelper\Proto --cpp_out=$(SolutionDir)libSubtitleFontHelperHook\proto %(Identity)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generate protobuf files</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">proto\message.pb.cc</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">proto\message.pb.cc</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">proto\message.pb.cc</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">proto\message.pb.cc</Outputs>
+      <OutputItemType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ClCompile</OutputItemType>
+      <OutputItemType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ClCompile</OutputItemType>
+      <OutputItemType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ClCompile</OutputItemType>
+      <OutputItemType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ClCompile</OutputItemType>
+    </CustomBuild>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\Google.Protobuf.Tools.3.15.0\build\Google.Protobuf.Tools.targets" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Google.Protobuf.Tools.3.15.0\build\Google.Protobuf.Tools.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Google.Protobuf.Tools.3.15.0\build\Google.Protobuf.Tools.targets'))" />
+  </Target>
 </Project>

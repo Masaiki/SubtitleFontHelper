@@ -1,0 +1,50 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+                    xmlns:s="clr-namespace:System;assembly=mscorlib">
+
+    <s:String x:Key="MainWindow.TabHeader.LogOutput">
+        日志输出
+    </s:String>
+    <s:String x:Key="MainWindow.TabHeader.IndexManagement">
+        索引管理
+    </s:String>
+
+    <s:String x:Key="MainWindow.Title">
+        SubtitleFontHelper
+    </s:String>
+    <s:String x:Key="MainWindow.Menu.File">
+        文件(_F)
+    </s:String>
+    <s:String x:Key="MainWindow.Menu.File.Exit">
+        退出(_E)
+    </s:String>
+    <s:String x:Key="MainWindow.LogTab.ClearButton">
+        清除日志
+    </s:String>
+
+
+    <s:String x:Key="IndexBuilder.TabHeader.DirectorySelection">
+        选择目录
+    </s:String>
+    <s:String x:Key="IndexBuilder.TabHeader.BuildIndex">
+        建立索引
+    </s:String>
+    <s:String x:Key="IndexBuilder.Button.Cancel">
+        取消
+    </s:String>
+    <s:String x:Key="IndexBuilder.Button.Next">
+        下一步
+    </s:String>
+    <s:String x:Key="IndexBuilder.Button.Prev">
+        上一步
+    </s:String>
+    <s:String x:Key="IndexBuilder.Step1.Hint">
+        在下方列表中添加包含字体的目录，被指定的目录将会被按照给出的顺序扫描，当出现重名的字体时，只有先被扫描到的字体将会被加入索引。
+    </s:String>
+    <s:String x:Key="IndexBuilder.Step1.AddDirectory">
+        添加...
+    </s:String>
+    <s:String x:Key="IndexBuilder.Step1.RemoveDirectory">
+        移除
+    </s:String>
+</ResourceDictionary>

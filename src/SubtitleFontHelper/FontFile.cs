@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using System.IO;
 
 using libSubtitleFontHelper;
 
@@ -12,14 +13,32 @@ namespace SubtitleFontHelper
     [XmlRoot("FontFileCollection")]
     public class FontFileCollection
     {
-        [XmlElement("FileCount")]
+        [XmlAttribute("FileCount")]
         public int FileCount { 
-            get { return FontFiles.Count; }
+            get { return FontFile.Count; }
             set { /*Eat the value*/ }
         }
 
-        [XmlElement("FontFiles")]
-        public List<FontFile> FontFiles { get; set; } = new List<FontFile>();
+        [XmlElement("FontFile")]
+        public List<FontFile> FontFile { get; set; } = new List<FontFile>();
+
+        public void WriteToXml(string filename)
+        {
+            XmlSerializer xml = new XmlSerializer(typeof(FontFileCollection));
+            using (FileStream file = new FileStream(filename, FileMode.Create))
+            {
+                xml.Serialize(file, this);
+            }
+        }
+
+        public static FontFileCollection ReadFromXml(string filename)
+        {
+            XmlSerializer xml = new XmlSerializer(typeof(FontFileCollection));
+            using (FileStream file = new FileStream(filename, FileMode.Open))
+            {
+                return xml.Deserialize(file) as FontFileCollection;
+            }
+        }
     }
 
     public class FontFile

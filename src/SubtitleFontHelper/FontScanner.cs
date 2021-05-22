@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using libSubtitleFontHelper;
@@ -11,6 +12,9 @@ namespace SubtitleFontHelper
 {
     public class FontScanner
     {
+        public delegate void FinishCallback(FontFileCollection result);
+        public delegate void ExceptionCallback(string file, int faceindex, Exception exception);
+
         private string _current_file = "N/A";
         private int _progress = 0;
 
@@ -32,7 +36,7 @@ namespace SubtitleFontHelper
         /// <param name="directory">directory to be scanned</param>
         /// <param name="suffixes">filename suffixes</param>
         /// <returns>file list</returns>
-        public static List<string> ScanDirectory(string directory, IEnumerable<string> suffixes)
+        public static List<string> FilterDirectory(string directory, IEnumerable<string> suffixes)
         {
             List<string> file_list = new List<string>();
 
@@ -40,6 +44,8 @@ namespace SubtitleFontHelper
             {
                 FileInfo[] files;
                 DirectoryInfo[] directories;
+                dir.GetFileSystemInfos();
+                
                 try
                 {
                     files = dir.GetFiles();
@@ -79,7 +85,7 @@ namespace SubtitleFontHelper
         }
 
 
-        public FontFileCollection ScanFont(IEnumerable<string> files)
+        public FontFileCollection ScanFont(IEnumerable<string> files, ExceptionCallback exception_handler)
         {
             FontFileCollection collection = new FontFileCollection();
             int files_count = files.Count();
@@ -96,17 +102,33 @@ namespace SubtitleFontHelper
                 fontFile.FileName = file;
                 _metadata.OpenFontFile(file);
                 int face_count = _metadata.GetFontFaceCount();
-                for(int i = 0; i < face_count; ++i)
+                for (int i = 0; i < face_count; ++i)
                 {
-                    IFreeTypeFontFaceMetadata faceMetadata = _metadata.GetFontFace(i);
-                    FontFace face = FontFace.FromMetadata(faceMetadata);
-                    face.FontFaceIndex = i;
-                    fontFile.FontFaces.Add(face);
+                    IFreeTypeFontFaceMetadata faceMetadata;
+                    try
+                    {
+                        faceMetadata = _metadata.GetFontFace(i);
+                        FontFace face = FontFace.FromMetadata(faceMetadata);
+                        face.FontFaceIndex = i;
+                        fontFile.FontFaces.Add(face);
+                    }
+                    catch(Exception exp)
+                    {
+                        exception_handler(file, i, exp);
+                    }
                 }
-                if (fontFile.FontFaces.Count != 0) collection.FontFiles.Add(fontFile);
+                if (fontFile.FontFaces.Count != 0) collection.FontFile.Add(fontFile);
             }
             return collection;
         }
 
+        public void ScanFontAsync(IEnumerable<string> files, ExceptionCallback exception_handler, FinishCallback callback)
+        {
+            new Thread(delegate ()
+            {
+                FontFileCollection ret = ScanFont(files, exception_handler);
+                callback(ret);
+            }).Start();
+        }
     }
 }
