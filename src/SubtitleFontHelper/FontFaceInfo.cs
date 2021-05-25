@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 namespace SubtitleFontHelper
 {
     [Serializable]
-    class FontFaceInfo
+    public class FontFaceInfo
     {
         [XmlAttribute("Index")] public int Index { get; set; } = 0;
 

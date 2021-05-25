@@ -61,6 +61,7 @@
                 <StackPanel>
                     <Button Content="Show Wizard" Name="ShowWiz" Click="ShowWiz_OnClick"></Button>
                     <Button Content="BuildIndex" Name="BuildIndex" Click="BuildIndex_OnClick"></Button>
+                    <Button Content="TestFont" Name="TestFont" Click="TestFont_OnClick"></Button>
                     <Button Content="Test NamedPipe" Name="TestPipe" Click="TestPipe_OnClick"></Button>
                 </StackPanel>
             </TabItem>

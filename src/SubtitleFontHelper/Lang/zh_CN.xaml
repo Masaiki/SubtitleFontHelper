@@ -47,4 +47,7 @@
     <s:String x:Key="IndexBuilder.Step1.RemoveDirectory">
         移除
     </s:String>
+    <s:String x:Key="IndexBuilder.Step1.MultithreadHint">
+        使用多线程处理
+    </s:String>
 </ResourceDictionary>

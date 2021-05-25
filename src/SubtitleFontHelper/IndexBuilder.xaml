@@ -70,6 +70,47 @@
                                 Click="MoveDownButton_OnClick"
                                 Style="{StaticResource SelectTriggerButton}"
                                 Content="↓"/>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"></ColumnDefinition>
+                                <ColumnDefinition Width="auto"></ColumnDefinition>
+                                <ColumnDefinition Width="auto"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox Name="MultithreadCheckBox"
+                                      Content="{StaticResource IndexBuilder.Step1.MultithreadHint}"
+                                      Margin="10"
+                                      FontSize="12"
+                                      Grid.Row="0" Grid.Column="0"
+                                      Grid.ColumnSpan="3"
+                                      IsChecked="False"/>
+                            <TextBlock Text="使用" FontSize="12"
+                                       Grid.Row="1" Grid.Column="0"
+                                       TextAlignment="Right"/>
+                            <TextBox Text="4" FontSize="12"
+                                     Width="30" TextAlignment="Center"
+                                     Grid.Row="1" Grid.Column="1">
+                                <TextBox.Style>
+                                    <Style TargetType="{x:Type TextBox}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsChecked, ElementName=MultithreadCheckBox}"
+                                                         Value="False">
+                                                <Setter Property="IsEnabled" Value="False"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsChecked, ElementName=MultithreadCheckBox}"
+                                                         Value="True">
+                                                <Setter Property="IsEnabled" Value="True"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                                <TextBlock Text="个线程" FontSize="12"
+                                     Grid.Row="1" Grid.Column="2"/>
+                        </Grid>
                     </StackPanel>
                     <ListBox Margin="10"
                              FontSize="12"
@@ -79,9 +120,11 @@
                 </DockPanel>
             </TabItem>
             <TabItem Header="{DynamicResource IndexBuilder.TabHeader.BuildIndex}" 
-                     IsEnabled="False"
-                     Style="{StaticResource TabItemStyle}">
-
+                     Style="{StaticResource TabItemStyle}"
+                     IsEnabled="False">
+                <DockPanel LastChildFill="True">
+                    
+                </DockPanel>
             </TabItem>
         </TabControl>
 

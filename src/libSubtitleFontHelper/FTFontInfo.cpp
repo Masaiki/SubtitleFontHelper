@@ -227,12 +227,12 @@ namespace libSubtitleFontHelper
 				goto cleanup;
 			}
 
-			if(!IsLegalFontFace(face))
+			if (!IsLegalFontFace(face))
 			{
 				faceInfo->Status = faceInfo->Status | FTFontFaceInfo::ReaderStatus::NotSupportedFormat;
 				goto cleanup;
 			}
-			
+
 			szPostScriptName = FT_Get_Postscript_Name(face);
 			if (szPostScriptName != nullptr)
 				faceInfo->PostScriptName = gcnew String(szPostScriptName);
@@ -278,7 +278,7 @@ namespace libSubtitleFontHelper
 			faceInfo->Win32FamilyName = ConvertVectorToCliList(vWin32FamilyNames);
 			faceInfo->TypographicFamilyName = ConvertVectorToCliList(vTypographicNames);
 
-			if(bBadNames)
+			if (bBadNames)
 				faceInfo->Status = faceInfo->Status | FTFontFaceInfo::ReaderStatus::NonstandardNameDetected;
 
 		cleanup:
@@ -327,8 +327,8 @@ namespace libSubtitleFontHelper
 				// UTF-16 BE
 				return 1201;
 			case TT_MS_ID_PRC:
-				// GB18030
-				return 54936;
+				// GBK
+				return 936;
 			case TT_MS_ID_SJIS:
 				// Shift-JIS
 				return 932;
@@ -337,7 +337,7 @@ namespace libSubtitleFontHelper
 				return 950;
 			case TT_MS_ID_WANSUNG:
 				// Wansung
-				return 20949;
+				return 949;
 			case TT_MS_ID_JOHAB:
 				// Johab
 				return 1361;
@@ -397,55 +397,50 @@ namespace libSubtitleFontHelper
 			UINT uCodepage = GetCodepage(name.encoding_id);
 			if (uCodepage == -1)return std::wstring();
 
-			wsName = DecodeBytes(uCodepage, reinterpret_cast<const char*>(name.string), name.string_len);
-			if (wsName.empty()) {
-				warn = true;
-				return ConvertNameAlt(name);
-			}
-
-			size_t n = wsName.find(L'\0');
-			if (n != std::wstring::npos)
+			bool bUnicodeName = true;
+			if (name.encoding_id == TT_MS_ID_BIG_5 ||
+				name.encoding_id == TT_MS_ID_PRC ||
+				name.encoding_id == TT_MS_ID_WANSUNG)
 			{
-				warn = true;
-				std::wstring wsNameAlt = ConvertNameAlt(name);
-				size_t m = wsNameAlt.find(L'\0');
-				if (n > m) {
-					wsName.resize(n);
-					return wsName;
-				}
-				else {
-					if (m != std::wstring::npos) {
-						wsNameAlt.resize(m);
-					}
-					return wsNameAlt;
-				}
-			}
-			return wsName;
-		}
+				const size_t nCvtSize = 128;
+				char tmp[nCvtSize];
+				const char* sSFNTName = reinterpret_cast<const char*>(name.string);
+				size_t nAnsiLength = 0;
+				size_t nSFNTLength = name.string_len - (name.string_len % 2);
 
-		std::wstring ConvertNameAlt(const FT_SfntName& name)
-		{
-			if (name.encoding_id == TT_MS_ID_BIG_5 || name.encoding_id == TT_MS_ID_PRC) {
-				// some fonts may store GBK/BIG5 bytes in big-endian uint16_t 
-				if (name.string_len != 0 && name.string_len % 2 == 0) {
-					size_t new_len = name.string_len / 2;
-					std::unique_ptr<char[]> bytes(new char[new_len]);
-					for (size_t i = 0; i < new_len; ++i) {
-						if (name.string[i * 2] != 0) {
-							// not uint16 BE
-							return std::wstring();
+				for (; nSFNTLength; nSFNTLength -= 2)
+				{
+
+					if (sSFNTName[0])
+					{
+						if (nCvtSize >= (nAnsiLength + 2)) {
+							tmp[nAnsiLength++] = sSFNTName[0];
+							tmp[nAnsiLength++] = sSFNTName[1];
 						}
-						bytes[i] = name.string[i * 2 + 1];
+						else
+						{
+							break;
+						}
 					}
-					UINT uCodepage = GetCodepage(name.encoding_id);
-					return DecodeBytes(uCodepage, bytes.get(), new_len);
+					else
+					{
+						if (nCvtSize >= (nAnsiLength + 1)) {
+							tmp[nAnsiLength++] = sSFNTName[1];
+						}
+						else
+						{
+							break;
+						}
+					}
+					sSFNTName += 2;
 				}
+				wsName = DecodeBytes(uCodepage, tmp, nAnsiLength);
+				if (!wsName.empty())
+					bUnicodeName = false;
 			}
-			else if (name.encoding_id == TT_MS_ID_SJIS) {
-				// some fonts may store utf16be bytes but telling SJIS encoding
-				return DecodeBytes((const char*)name.string, name.string_len);
-			}
-			return std::wstring();
+			if (bUnicodeName)
+				wsName = DecodeBytes(reinterpret_cast<const char*>(name.string), name.string_len & (~1u));
+			return wsName;
 		}
 
 		static void DistinctList(std::vector<std::wstring>& list)

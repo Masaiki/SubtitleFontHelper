@@ -17,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml;
 using System.Xml.Serialization;
 
 
@@ -36,7 +37,8 @@ namespace SubtitleFontHelper
             DependencyProperty.Register("LogTextBoxKeepBottom", typeof(bool), typeof(MainWindow),
             new FrameworkPropertyMetadata((bool)true, new PropertyChangedCallback(LogTextBoxKeepBottom_Changed)));
 
-        public bool LogTextBoxKeepBottom { 
+        public bool LogTextBoxKeepBottom
+        {
             get { return (bool)GetValue(LogTextBoxKeepBottomProperty); }
             set { SetValue(LogTextBoxKeepBottomProperty, value); }
         }
@@ -128,7 +130,7 @@ namespace SubtitleFontHelper
         private void OnExit(object sender, ExecutedRoutedEventArgs e)
         {
             Application.Current.Shutdown();
-            
+
         }
 
         private void ClearButton_Click(object sender, RoutedEventArgs e)
@@ -176,7 +178,7 @@ namespace SubtitleFontHelper
             using (Stream fs = new FileStream(@"E:\超级字体整合包 XZ\FontLoader\index.xml", FileMode.Open))
             {
                 FontFileCollection ffc = (FontFileCollection)xs.Deserialize(fs);
-                
+
                 foreach (var f in ffc.FontFile)
                 {
                     ctx.FontIndex.AddFont(f);
@@ -184,7 +186,7 @@ namespace SubtitleFontHelper
             }
 
             ctx.NamedPipeServer = new NamedPipeServer(@"SubtitleFontHelperPipe");
-            ctx.ServerThread = new Thread(delegate()
+            ctx.ServerThread = new Thread(delegate ()
             {
                 ctx.NamedPipeServer.RunServer();
             });
@@ -193,43 +195,82 @@ namespace SubtitleFontHelper
 
         private void BuildIndex_OnClick(object sender, RoutedEventArgs e)
         {
-            //FTContext context = new FTContext();
-            //FTFontFileMap fileMap = new FTFontFileMap();
-            //FTFontReader reader = new FTFontReader(context, fileMap);
 
-            //bool success = fileMap.OpenFile(@"E:\超级字体整合包 XZ\完整包\其他\日文\RICOH（理光）\HGPrettyFrankHS.ttf");
-            //if (success)
-            //{
-            //    int n = reader.GetFontFaceCount();
-            //    for (int i = 0; i < n; ++i)
-            //    {
-            //        FTFontFaceInfo info = reader.GetFaceInfo(i);
-                    
-            //    }
-            //}
-            //fileMap.Dispose();
-            //context.Dispose();
+            DirectoryInfo dirInfo = new DirectoryInfo(@"E:\超级字体整合包 XZ");
+            RecursiveFileEnumerator rfe = new RecursiveFileEnumerator(new DirectoryInfo[] { dirInfo });
+            List<string> extList = new string[] { ".otf", ".ttf", ".ttc", ".otc" }.ToList();
+            List<FontFaceInfo> faceList = new List<FontFaceInfo>();
 
-            DirectoryInfo dirInfo = new DirectoryInfo(@"E:\超级字体整合包 XZ\test");
-            RecursiveFileEnumerator rfe = new RecursiveFileEnumerator(new DirectoryInfo[] {dirInfo});
-            List<string> extList = new string[] {".otf", ".ttf", ".ttc", ".otc"}.ToList();
-  
-            using (StreamWriter writer = new StreamWriter(@"E:\超级字体整合包 XZ\filelist.txt"))
+            XmlSerializer serializer = new XmlSerializer(typeof(List<FontFaceInfo>));
+            using (Stream stream = new FileStream(@"E:\超级字体整合包 XZ\filelist.xml", FileMode.Open))
             {
-                RecursiveFileEnumerator.DirectoryAccessExceptionHandler handler = delegate(object osender, DirectoryInfo info, Exception exception)
+                XmlReaderSettings settings = new XmlReaderSettings();
+                settings.CheckCharacters = false;
+                XmlReader reader = XmlTextReader.Create(stream, settings);
+                List<FontFaceInfo> list = serializer.Deserialize(reader) as List<FontFaceInfo>;
+                int i = list.Count;
+            }
+
+
+            using (StreamWriter writer = new StreamWriter(@"E:\超级字体整合包 XZ\filelist.xml"))
+            {
+                void Proc()
                 {
-                    writer.WriteLine("{0} failed: {1}", info.FullName, exception.Message);
-                };
-                rfe.OnDirectoryAccessException += handler;
-                FileInfo fileInfo=rfe.NextFileExtLocked(extList);
-                while (fileInfo != null)
+                    using (FTContext context = new FTContext())
+                    {
+                        using (FTFontFileMap fileMap = new FTFontFileMap())
+                        {
+                            FTFontReader reader = new FTFontReader(context, fileMap);
+                            //RecursiveFileEnumerator.DirectoryAccessExceptionHandler handler =
+                            //    delegate (object osender, DirectoryInfo info, Exception exception)
+                            //    {
+                            //        writer.WriteLine("{0} failed: {1}", info.FullName, exception.Message);
+                            //    };
+                            //rfe.OnDirectoryAccessException += handler;
+                            FileInfo fileInfo = rfe.NextFileExtLocked(extList);
+                            while (fileInfo != null)
+                            {
+                                bool success = fileMap.OpenFile(fileInfo.FullName);
+                                if (success)
+                                {
+                                    int n = reader.GetFontFaceCount();
+                                    for (int i = 0; i < n; ++i)
+                                    {
+                                        FTFontFaceInfo info = reader.GetFaceInfo(i);
+                                        FontFaceInfo faceInfo = new FontFaceInfo();
+                                        faceInfo.PostScriptName = info.PostScriptName;
+                                        faceInfo.Win32FamilyName = info.Win32FamilyName;
+                                        faceInfo.FamilyName = info.TypographicFamilyName;
+                                        faceInfo.FileName = fileInfo.FullName;
+                                        faceInfo.Index = i;
+                                        lock (faceList) faceList.Add(faceInfo);
+                                    }
+                                }
+
+
+
+                                fileInfo = rfe.NextFileExtLocked(extList);
+                            }
+
+                            //rfe.OnDirectoryAccessException -= handler;
+                        }
+                    }
+                }
+                int threadMax = 4;
+                Thread[] threads = new Thread[threadMax];
+                for (int i = 0; i < threads.Length; ++i)
                 {
-                    writer.WriteLine(fileInfo.FullName);
-                    fileInfo = rfe.NextFileExtLocked(extList);
+                    threads[i] = new Thread(Proc);
+                    threads[i].Start();
+                }
+                for (int i = 0; i < threads.Length; ++i)
+                {
+                    threads[i].Join();
                 }
 
-                rfe.OnDirectoryAccessException -= handler;
+                serializer.Serialize(writer.BaseStream, faceList);
             }
+
 
             /*
             FontScanner fscan = new FontScanner();
@@ -245,6 +286,34 @@ namespace SubtitleFontHelper
                 XmlSerializer xs = new XmlSerializer(typeof(FontFileCollection));
                 xs.Serialize(s,ffc);
             }*/
+        }
+
+        private void TestFont_OnClick(object sender, RoutedEventArgs e)
+        {
+            using (FTContext context = new FTContext())
+            {
+                using (FTFontFileMap fileMap = new FTFontFileMap())
+                {
+                    FTFontReader reader = new FTFontReader(context, fileMap);
+                    //RecursiveFileEnumerator.DirectoryAccessExceptionHandler handler =
+                    //    delegate (object osender, DirectoryInfo info, Exception exception)
+                    //    {
+                    //        writer.WriteLine("{0} failed: {1}", info.FullName, exception.Message);
+                    //    };
+                    //rfe.OnDirectoryAccessException += handler;
+                    bool success = fileMap.OpenFile(@"E:\超级字体整合包 XZ\完整包\Microsoft（微软）\繁体\微软繁标宋.TTF");
+                    if (success)
+                    {
+                        int n = reader.GetFontFaceCount();
+                        for (int i = 0; i < n; ++i)
+                        {
+                            FTFontFaceInfo info = reader.GetFaceInfo(i);
+                        }
+                    }
+
+                    //rfe.OnDirectoryAccessException -= handler;
+                }
+            }
         }
     }
 }

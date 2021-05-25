@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 namespace SubtitleFontHelper
 {
     [Serializable]
-    class FontFamilyInfo
+    public class FontFamilyInfo
     {
         /// <summary>
         /// The typographical family name
