@@ -38,10 +38,10 @@
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="FreeTypeFontMetadata.cpp">
+    <ClCompile Include="FTFontInfo.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="FTFontInfo.cpp">
+    <ClCompile Include="UtilityFunctions.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

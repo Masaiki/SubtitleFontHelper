@@ -18,9 +18,9 @@ void LoadFontFile(const std::wstring& strPath)
 
 void TryLoadFont(const std::wstring& strName)
 {
-	auto strPath = GetFontFilePath(g_stInfo.pRpcInfo.get(), strName);
-	if (!strPath.empty()) {
-		LoadFontFile(strPath);
+	auto strVec = GetFontFilePath(g_stInfo.pRpcInfo.get(), strName);
+	for (auto& str : strVec) {
+		LoadFontFile(str);
 	}
 }
 

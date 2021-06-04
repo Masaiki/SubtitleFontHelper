@@ -93,7 +93,6 @@
     <Compile Include="FontFaceInfo.cs" />
     <Compile Include="FontFamilyInfo.cs" />
     <Compile Include="FontMatcher.cs" />
-    <Compile Include="FontScanner.cs" />
     <Compile Include="GlobalContext.cs" />
     <Compile Include="IndexBuilder.xaml.cs">
       <DependentUpon>IndexBuilder.xaml</DependentUpon>
@@ -120,7 +119,6 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="FontFile.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -131,7 +129,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FontIndex.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

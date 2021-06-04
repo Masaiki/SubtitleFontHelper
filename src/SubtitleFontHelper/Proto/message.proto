@@ -7,11 +7,13 @@ message AttachIndication {
 }
 
 message FontQueryRequest {
-	string fullName = 1;
+	string faceName = 1;
+	int32 weight = 2;
+	int32 italic = 3;
 }
 
 message FontQueryResponse {
-	string fullPath = 1;
+	repeated string fullPath = 1;
 }
 
 enum MessageType {

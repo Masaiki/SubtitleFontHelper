@@ -45,18 +45,13 @@ namespace SubtitleFontHelper
 
         private void OnFontQueryRequest(FontQueryRequest msg)
         {
-            FontFile result = GlobalContext.Instance.FontIndex.FindFontLocked(msg.FullName);
-
+            List<FontFaceInfo> faceList = GlobalContext.FontMatcher.FindFontFace(msg.FaceName);
             Message respmsg = new Message();
             respmsg.Type = MessageType.ResponseFontQuery;
             respmsg.FontQueryResponse = new FontQueryResponse();
-            if (result != null)
+            foreach (var face in faceList)
             {
-                respmsg.FontQueryResponse.FullPath = result.FileName;
-            }
-            else
-            {
-                respmsg.FontQueryResponse.FullPath = "";
+                respmsg.FontQueryResponse.FullPath.Add(face.FileName);
             }
             SendMessage(respmsg);
         }

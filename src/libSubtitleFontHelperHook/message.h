@@ -6,4 +6,5 @@
 bool AttachToDaemon(RPCInfo* pInfo);
 void DetachFromDaemon(RPCInfo* pInfo);
 
-std::wstring GetFontFilePath(RPCInfo* pInfo, const std::wstring& strFullName);
+std::vector<std::wstring> GetFontFilePath(RPCInfo* pInfo, const std::wstring& strFaceName);
+std::vector<std::wstring> GetFontFilePath(RPCInfo* pInfo, const std::wstring& strFaceName, int weight, int italic);

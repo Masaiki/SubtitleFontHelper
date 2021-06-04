@@ -120,9 +120,9 @@ namespace SubtitleFontHelper
         */
         void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            if (GlobalContext.Instance.NamedPipeServer != null)
+            if (GlobalContext.NamedPipeServer != null)
             {
-                GlobalContext.Instance.NamedPipeServer.Cancel();
+                GlobalContext.NamedPipeServer.Cancel();
             }
 
         }
@@ -173,46 +173,35 @@ namespace SubtitleFontHelper
 
         private void TestPipe_OnClick(object sender, RoutedEventArgs e)
         {
-            GlobalContext ctx = GlobalContext.Instance;
-            XmlSerializer xs = new XmlSerializer(typeof(FontFileCollection));
-            using (Stream fs = new FileStream(@"E:\超级字体整合包 XZ\FontLoader\index.xml", FileMode.Open))
+            FontMatcher fontMatcher = new FontMatcher();
+            using (Stream fs = new FileStream(@"E:\超级字体整合包 XZ\new_index.xml", FileMode.Open))
             {
-                FontFileCollection ffc = (FontFileCollection)xs.Deserialize(fs);
+                FontFaceCollection faceCollection = FontFaceCollection.ParseStream(fs);
 
-                foreach (var f in ffc.FontFile)
+                foreach (var face in faceCollection.FontFace)
                 {
-                    ctx.FontIndex.AddFont(f);
+                    fontMatcher.AddFontFace(face);
                 }
             }
 
-            ctx.NamedPipeServer = new NamedPipeServer(@"SubtitleFontHelperPipe");
-            ctx.ServerThread = new Thread(delegate ()
+            GlobalContext.FontMatcher = fontMatcher;
+
+            GlobalContext.NamedPipeServer = new NamedPipeServer(@"SubtitleFontHelperPipe");
+            GlobalContext.ServerThread = new Thread(delegate ()
             {
-                ctx.NamedPipeServer.RunServer();
+                GlobalContext.NamedPipeServer.RunServer();
             });
-            ctx.ServerThread.Start();
+            GlobalContext.ServerThread.Start();
         }
 
         private void BuildIndex_OnClick(object sender, RoutedEventArgs e)
         {
-
-            DirectoryInfo dirInfo = new DirectoryInfo(@"E:\超级字体整合包 XZ");
+            DirectoryInfo dirInfo = new DirectoryInfo(@"E:\超级字体整合包 XZ\Legacy");
             RecursiveFileEnumerator rfe = new RecursiveFileEnumerator(new DirectoryInfo[] { dirInfo });
             List<string> extList = new string[] { ".otf", ".ttf", ".ttc", ".otc" }.ToList();
-            List<FontFaceInfo> faceList = new List<FontFaceInfo>();
+            FontFaceCollection faceCollection = new FontFaceCollection();
 
-            XmlSerializer serializer = new XmlSerializer(typeof(List<FontFaceInfo>));
-            using (Stream stream = new FileStream(@"E:\超级字体整合包 XZ\filelist.xml", FileMode.Open))
-            {
-                XmlReaderSettings settings = new XmlReaderSettings();
-                settings.CheckCharacters = false;
-                XmlReader reader = XmlTextReader.Create(stream, settings);
-                List<FontFaceInfo> list = serializer.Deserialize(reader) as List<FontFaceInfo>;
-                int i = list.Count;
-            }
-
-
-            using (StreamWriter writer = new StreamWriter(@"E:\超级字体整合包 XZ\filelist.xml"))
+            using (FileStream stream = new FileStream(@"E:\超级字体整合包 XZ\new_index.xml", FileMode.Create)) 
             {
                 void Proc()
                 {
@@ -221,12 +210,6 @@ namespace SubtitleFontHelper
                         using (FTFontFileMap fileMap = new FTFontFileMap())
                         {
                             FTFontReader reader = new FTFontReader(context, fileMap);
-                            //RecursiveFileEnumerator.DirectoryAccessExceptionHandler handler =
-                            //    delegate (object osender, DirectoryInfo info, Exception exception)
-                            //    {
-                            //        writer.WriteLine("{0} failed: {1}", info.FullName, exception.Message);
-                            //    };
-                            //rfe.OnDirectoryAccessException += handler;
                             FileInfo fileInfo = rfe.NextFileExtLocked(extList);
                             while (fileInfo != null)
                             {
@@ -238,21 +221,18 @@ namespace SubtitleFontHelper
                                     {
                                         FTFontFaceInfo info = reader.GetFaceInfo(i);
                                         FontFaceInfo faceInfo = new FontFaceInfo();
+                                        faceInfo.FullName = info.FullName;
                                         faceInfo.PostScriptName = info.PostScriptName;
                                         faceInfo.Win32FamilyName = info.Win32FamilyName;
-                                        faceInfo.FamilyName = info.TypographicFamilyName;
+                                        //faceInfo.FamilyName = info.TypographicFamilyName;
                                         faceInfo.FileName = fileInfo.FullName;
                                         faceInfo.Index = i;
-                                        lock (faceList) faceList.Add(faceInfo);
+                                        lock (faceCollection) faceCollection.FontFace.Add(faceInfo);
                                     }
                                 }
 
-
-
                                 fileInfo = rfe.NextFileExtLocked(extList);
                             }
-
-                            //rfe.OnDirectoryAccessException -= handler;
                         }
                     }
                 }
@@ -268,24 +248,9 @@ namespace SubtitleFontHelper
                     threads[i].Join();
                 }
 
-                serializer.Serialize(writer.BaseStream, faceList);
+                faceCollection.WriteStream(stream);
             }
 
-
-            /*
-            FontScanner fscan = new FontScanner();
-            var flist = FontScanner.FilterDirectory(@"E:\超级字体整合包 XZ\完整包\Microsoft（微软）\繁体", new List<string>(){".ttf",".otf",".ttc"});
-            
-            FontFileCollection ffc = fscan.ScanFont(flist, delegate(string file, int faceindex, Exception exception)
-            {
-
-            });
-
-            using (Stream s = new FileStream(@"E:\超级字体整合包 XZ\FontLoader\index1.xml", FileMode.Create))
-            {
-                XmlSerializer xs = new XmlSerializer(typeof(FontFileCollection));
-                xs.Serialize(s,ffc);
-            }*/
         }
 
         private void TestFont_OnClick(object sender, RoutedEventArgs e)
@@ -295,12 +260,6 @@ namespace SubtitleFontHelper
                 using (FTFontFileMap fileMap = new FTFontFileMap())
                 {
                     FTFontReader reader = new FTFontReader(context, fileMap);
-                    //RecursiveFileEnumerator.DirectoryAccessExceptionHandler handler =
-                    //    delegate (object osender, DirectoryInfo info, Exception exception)
-                    //    {
-                    //        writer.WriteLine("{0} failed: {1}", info.FullName, exception.Message);
-                    //    };
-                    //rfe.OnDirectoryAccessException += handler;
                     bool success = fileMap.OpenFile(@"E:\超级字体整合包 XZ\完整包\Microsoft（微软）\繁体\微软繁标宋.TTF");
                     if (success)
                     {
@@ -310,8 +269,6 @@ namespace SubtitleFontHelper
                             FTFontFaceInfo info = reader.GetFaceInfo(i);
                         }
                     }
-
-                    //rfe.OnDirectoryAccessException -= handler;
                 }
             }
         }

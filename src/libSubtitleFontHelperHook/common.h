@@ -24,7 +24,7 @@ struct DllInfo {
 	std::unique_ptr<RPCInfo> pRpcInfo;
 
 	std::mutex mutCache;
-	std::unordered_map<std::wstring, std::wstring> mapCache;
+	std::unordered_map<std::wstring, std::vector<std::wstring>> mapCache;
 
 	DllInfo();
 };

@@ -13,7 +13,7 @@ static bool WriteBytesToFile(HANDLE hFile, const char* pBuffer, size_t nBytes);
 static bool WriteBytesToFilePrefixed(HANDLE hFile, const char* pBuffer, size_t nBytes);
 static bool ReadBytesFromFile(HANDLE hFile, char* pBuffer, size_t nBytes);
 static bool SendAttachMessage(HANDLE hPipe);
-static std::wstring GetFontFilePathRpc(RPCInfo* pInfo, const std::wstring& strFullName);
+static std::vector<std::wstring> GetFontFilePathRpc(RPCInfo* pInfo, const std::wstring& strFullName, int weight, int italic);
 static void CleanUpRpcInfo(RPCInfo* pInfo);
 
 bool AttachToDaemon(RPCInfo* pInfo)
@@ -69,21 +69,24 @@ void DetachFromDaemon(RPCInfo* pInfo)
 	CleanUpRpcInfo(pInfo);
 }
 
-std::wstring GetFontFilePath(RPCInfo* pInfo, const std::wstring& strFullName)
-{	
+std::vector<std::wstring> GetFontFilePath(RPCInfo* pInfo, const std::wstring& strFaceName, int weight, int italic)
+{
 	std::lock_guard<std::mutex> lg(g_stInfo.mutCache);
-	auto iterCache = g_stInfo.mapCache.find(strFullName);
+	auto iterCache = g_stInfo.mapCache.find(strFaceName);
 	if (iterCache == g_stInfo.mapCache.end()) {
 		// not exist
-		auto strPath = GetFontFilePathRpc(pInfo, strFullName);
-		if (!strPath.empty()){
-			g_stInfo.mapCache.insert(std::make_pair(strFullName, strPath));
-		}
+		auto strPath = GetFontFilePathRpc(pInfo, strFaceName, weight, italic);
+		g_stInfo.mapCache.insert(std::make_pair(strFaceName, strPath));
 		return strPath;
 	}
 	else {
 		return iterCache->second;
 	}
+}
+
+std::vector<std::wstring> GetFontFilePath(RPCInfo* pInfo, const std::wstring& strFaceName)
+{	
+	return GetFontFilePath(pInfo, strFaceName, FW_DONTCARE, 0);
 }
 
 static bool WriteBytesToFile(HANDLE hFile, const char* pBuffer, size_t nBytes) {
@@ -143,14 +146,16 @@ static bool SendAttachMessage(HANDLE hPipe) {
 
 
 
-static bool SendQueryMessage(HANDLE hPipe,const std::wstring& strQuery) {
+static bool SendQueryMessage(HANDLE hPipe,const std::wstring& strQuery, int weight, int italic) {
 	using namespace SubtitleFontHelper;
 	Message msgHeader;
 	FontQueryRequest msgQuery;
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8_conv;
 	bool ret = false;
 
-	msgQuery.set_fullname(utf8_conv.to_bytes(strQuery));
+	msgQuery.set_facename(utf8_conv.to_bytes(strQuery));
+	msgQuery.set_weight(weight);
+	msgQuery.set_italic(italic);
 	msgHeader.set_type(MessageType::Request_FontQuery);
 	msgHeader.set_allocated_fontqueryrequest(&msgQuery);
 
@@ -165,7 +170,7 @@ static bool SendQueryMessage(HANDLE hPipe,const std::wstring& strQuery) {
 	return ret;
 }
 
-static bool ReceiveQueryResponse(HANDLE hPipe, std::wstring& strResult) {
+static bool ReceiveQueryResponse(HANDLE hPipe, std::vector<std::wstring>& strResult) {
 	using namespace SubtitleFontHelper;
 	Message msgHeader;
 	uint32_t nLength;
@@ -192,7 +197,10 @@ static bool ReceiveQueryResponse(HANDLE hPipe, std::wstring& strResult) {
 	}
 
 	try {
-		strResult = utf8_conv.from_bytes(msgHeader.fontqueryresponse().fullpath());
+		const FontQueryResponse& response = msgHeader.fontqueryresponse();
+		for (int i = 0; i < response.fullpath_size(); ++i) {
+			strResult.push_back(utf8_conv.from_bytes(response.fullpath(i)));
+		}
 	}
 	catch (...) {
 		return false;
@@ -201,12 +209,12 @@ static bool ReceiveQueryResponse(HANDLE hPipe, std::wstring& strResult) {
 	return true;
 }
 
-static std::wstring GetFontFilePathRpc(RPCInfo* pInfo, const std::wstring& strFullName) {
+static std::vector<std::wstring> GetFontFilePathRpc(RPCInfo* pInfo, const std::wstring& strFullName, int weight, int italic) {
 	std::lock_guard<std::mutex> lg(pInfo->mutMutex);
-	if (pInfo->hPipe == INVALID_HANDLE_VALUE)return std::wstring();
-	std::wstring strResult;
+	std::vector<std::wstring> strResult;
+	if (pInfo->hPipe == INVALID_HANDLE_VALUE)return strResult;
 	bool bStat = false;
-	bStat = SendQueryMessage(pInfo->hPipe, strFullName);
+	bStat = SendQueryMessage(pInfo->hPipe, strFullName, weight, italic);
 	if (bStat == false)goto error;
 	bStat = ReceiveQueryResponse(pInfo->hPipe, strResult);
 	if (bStat == false)goto error;

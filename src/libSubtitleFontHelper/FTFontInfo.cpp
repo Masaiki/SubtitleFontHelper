@@ -236,7 +236,7 @@ namespace libSubtitleFontHelper
 			szPostScriptName = FT_Get_Postscript_Name(face);
 			if (szPostScriptName != nullptr)
 				faceInfo->PostScriptName = gcnew String(szPostScriptName);
-
+			
 			nNameCount = FT_Get_Sfnt_Name_Count(face);
 
 			for (int i = 0; i < nNameCount; ++i)
@@ -406,7 +406,8 @@ namespace libSubtitleFontHelper
 				char tmp[nCvtSize];
 				const char* sSFNTName = reinterpret_cast<const char*>(name.string);
 				size_t nAnsiLength = 0;
-				size_t nSFNTLength = name.string_len - (name.string_len % 2);
+				size_t nSFNTLength = name.string_len;
+				if (nSFNTLength & 1)return wsName;
 
 				for (; nSFNTLength; nSFNTLength -= 2)
 				{
@@ -435,8 +436,9 @@ namespace libSubtitleFontHelper
 					sSFNTName += 2;
 				}
 				wsName = DecodeBytes(uCodepage, tmp, nAnsiLength);
-				if (!wsName.empty())
-					bUnicodeName = false;
+				return wsName;
+				//if (!wsName.empty())
+				//	bUnicodeName = false;
 			}
 			if (bUnicodeName)
 				wsName = DecodeBytes(reinterpret_cast<const char*>(name.string), name.string_len & (~1u));

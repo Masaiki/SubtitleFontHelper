@@ -9,42 +9,8 @@ namespace SubtitleFontHelper
 {
     class GlobalContext
     {
-
-        #region Singleton
-        private static GlobalContext _instance;
-        private static readonly object _lock = new object();
-
-        public static GlobalContext Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    lock (_lock)
-                    {
-                        if (_instance == null)
-                        {
-                            _instance = new GlobalContext();
-                        }
-                    }
-                }
-                return _instance;
-            }
-        }
-        #endregion
-
-        private FontIndex _fontindex = new FontIndex();
-
-        public FontIndex FontIndex => _fontindex;
-
-        public Thread ServerThread { get; set; }
-        public NamedPipeServer NamedPipeServer { get; set; }
-
-        private GlobalContext()
-        {
-
-        }
-
-
+        public static FontMatcher FontMatcher { get; set; } = new FontMatcher();
+        public static Thread ServerThread { get; set; }
+        public static NamedPipeServer NamedPipeServer { get; set; }
     }
 }
